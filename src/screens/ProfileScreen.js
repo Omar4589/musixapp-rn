@@ -3,11 +3,12 @@ import { View, Text } from 'react-native';
 import Button from '../components/Button';
 import { useAuth } from '../state/AuthStore';
 import { useUI } from '../state/UIStore';
-// import DevBanner from '../components/DevBanner';
+import { useNavigation } from '@react-navigation/native';
 
 const ProfileScreen = () => {
   const { user, fetchMe, logout, logoutAll } = useAuth();
   const { theme, setTheme } = useUI();
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchMe().catch(() => {});
@@ -36,6 +37,12 @@ const ProfileScreen = () => {
         Languages: {user?.preferences?.preferredLanguages?.join(', ') || '—'}
       </Text>
 
+      <Button
+        title="Connected Services"
+        onPress={() => navigation.navigate('ConnectedServices')}
+        className="mb-6"
+      />
+
       <Text className="text-sm font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
         Theme
       </Text>
@@ -63,8 +70,6 @@ const ProfileScreen = () => {
         onPress={logoutAll}
         variant="secondary"
       />
-
-      {/* <DevBanner /> */}
     </View>
   );
 };
