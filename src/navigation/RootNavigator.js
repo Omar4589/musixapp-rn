@@ -10,6 +10,7 @@ import { useProviders } from '../state/ProvidersStore';
 import { useOAuthDeepLinks } from '../lib/deeplinks';
 import ConnectYourMusic from '../screens/ConnectYourMusic';
 import ConnectedServices from '../screens/ConnectedServices';
+import TabNavigator from './TabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,29 +54,22 @@ const RootNavigator = () => {
   const mustLink = isProviderRequired();
 
   return (
-    // key the tree so switching gate state resets history automatically
     <NavigationContainer
       key={user ? (mustLink && !hasAnyProvider ? 'gate' : 'main') : 'auth'}
     >
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{ headerBackTitleVisible: false }}>
         {user ? (
-          // 🔒 HARD GATE: only Connect screen, no back, no gestures
           mustLink && !hasAnyProvider ? (
-            <Stack.Screen
-              name="ConnectYourMusic"
-              component={ConnectYourMusic}
-              options={{
-                title: 'Connect',
-                headerBackVisible: false,
-                gestureEnabled: false,
-              }}
-            />
-          ) : (
+            // 🔒 Gate stack
             <>
               <Stack.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{ title: 'Profile' }}
+                name="ConnectYourMusic"
+                component={ConnectYourMusic}
+                options={{
+                  title: 'Connect',
+                  headerBackVisible: false,
+                  gestureEnabled: false,
+                }}
               />
               <Stack.Screen
                 name="ConnectedServices"
@@ -83,8 +77,16 @@ const RootNavigator = () => {
                 options={{ title: 'Connected Services' }}
               />
             </>
+          ) : (
+            // ✅ Main app (tabs)
+            <Stack.Screen
+              name="Tabs"
+              component={TabNavigator}
+              options={{ headerShown: false }}
+            />
           )
         ) : (
+          // 👤 Auth stack
           <>
             <Stack.Screen
               name="Welcome"
