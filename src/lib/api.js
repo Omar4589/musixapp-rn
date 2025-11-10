@@ -3,10 +3,10 @@ import { Platform } from 'react-native';
 const isAndroid = Platform.OS === 'android';
 
 // For emulator defaults; switch to your LAN IP for devices if needed
-const DEV_BASE = isAndroid ? 'https://makapp-server-fa403146ca6f.herokuapp.com' : 'http://localhost:3001';
+// const DEV_BASE = isAndroid ? 'https://makapp-server-fa403146ca6f.herokuapp.com' : 'http://localhost:3001';
 const PROD_BASE = 'https://makapp-server-fa403146ca6f.herokuapp.com';
 // NOTE: on physical devices in dev, swap DEV_BASE to your LAN IP:
-// const DEV_BASE = 'http://192.168.1.23:3001';
+ const DEV_BASE = 'http://192.168.1.181:3001';
 
 export const API_BASE = __DEV__ ? DEV_BASE : PROD_BASE;
 
