@@ -12,6 +12,8 @@
 		5A12C7BA5C8BEEEF9535981B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A5EA41D32EC117C8009D045A /* MusicKitBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A5EA41D12EC117C8009D045A /* MusicKitBridge.m */; };
+		A5EA41D42EC117C8009D045A /* MusicKitBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EA41D22EC117C8009D045A /* MusicKitBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,10 @@
 		5DCACB8F33CDC322A6C60F78 /* libPods-makapp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-makapp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = makapp/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = makapp/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A53C44D12EC10459004E8FE8 /* makapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = makapp.entitlements; path = makapp/makapp.entitlements; sourceTree = "<group>"; };
+		A5EA41D12EC117C8009D045A /* MusicKitBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicKitBridge.m; sourceTree = "<group>"; };
+		A5EA41D22EC117C8009D045A /* MusicKitBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicKitBridge.swift; sourceTree = "<group>"; };
+		A5EA41D52EC11811009D045A /* makapp-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "makapp-Bridging-Header.h"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -42,11 +48,15 @@
 		13B07FAE1A68108700A75B9A /* makapp */ = {
 			isa = PBXGroup;
 			children = (
+				A5EA41D12EC117C8009D045A /* MusicKitBridge.m */,
+				A5EA41D22EC117C8009D045A /* MusicKitBridge.swift */,
+				A53C44D12EC10459004E8FE8 /* makapp.entitlements */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				A5EA41D52EC11811009D045A /* makapp-Bridging-Header.h */,
 			);
 			name = makapp;
 			sourceTree = "<group>";
@@ -131,7 +141,7 @@
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 2600;
 					};
 				};
 			};
@@ -191,9 +201,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-makapp/Pods-makapp-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-makapp/Pods-makapp-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -230,9 +244,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-makapp/Pods-makapp-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-makapp/Pods-makapp-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -246,6 +264,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5EA41D32EC117C8009D045A /* MusicKitBridge.m in Sources */,
+				A5EA41D42EC117C8009D045A /* MusicKitBridge.swift in Sources */,
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -259,7 +279,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = makapp/makapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 62RUXR2CLQ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = makapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -274,7 +296,9 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.omarzumaya.makapp;
 				PRODUCT_NAME = makapp;
+				SWIFT_OBJC_BRIDGING_HEADER = "makapp-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -287,7 +311,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = makapp/makapp.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 62RUXR2CLQ;
 				INFOPLIST_FILE = makapp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -301,7 +327,9 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.omarzumaya.makapp;
 				PRODUCT_NAME = makapp;
+				SWIFT_OBJC_BRIDGING_HEADER = "makapp-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

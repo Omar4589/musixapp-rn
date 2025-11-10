@@ -3,12 +3,28 @@ import { View, Text } from 'react-native';
 import Button from '../components/Button';
 import { useAuth } from '../state/AuthStore';
 import { useUI } from '../state/UIStore';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useProviders } from '../state/ProvidersStore';
 
 const ProfileScreen = () => {
   const { user, fetchMe, logout, logoutAll } = useAuth();
   const { theme, setTheme } = useUI();
   const navigation = useNavigation();
+  const { spotify, apple, isProviderRequired } = useProviders();
+
+  // belt & suspenders: if gated, bounce to Connect as root
+  useEffect(() => {
+    const mustLink = isProviderRequired();
+    const hasAny = !!(spotify?.linked || apple?.linked);
+    if (mustLink && !hasAny) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'ConnectYourMusic' }],
+        }),
+      );
+    }
+  }, [spotify?.linked, apple?.linked, isProviderRequired, navigation]);
 
   useEffect(() => {
     fetchMe().catch(() => {});

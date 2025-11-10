@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View } from 'react-native';
@@ -14,30 +14,34 @@ import ConnectedServices from '../screens/ConnectedServices';
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
-  const { user, init } = useAuth();
+  const { user } = useAuth();
   const { refresh, spotify, apple, isProviderRequired } = useProviders();
-  const [ready, setReady] = React.useState(false);
-  const [providersReady, setProvidersReady] = React.useState(false);
+  const [providersReady, setProvidersReady] = useState(false);
 
-  React.useEffect(() => {
-    (async () => {
-      await init();
-      setReady(true);
-    })();
-  }, [init]);
-
-  React.useEffect(() => {
+  // When user becomes truthy, fetch providers once
+  useEffect(() => {
+    let mounted = true;
     (async () => {
       if (user) {
-        await refresh();
+        try {
+          await refresh();
+        } finally {
+          if (mounted) setProvidersReady(true);
+        }
+      } else {
+        // logged out state: no need to wait on providers
+        setProvidersReady(true);
       }
-      setProvidersReady(true);
     })();
+    return () => {
+      mounted = false;
+    };
   }, [user, refresh]);
 
   useOAuthDeepLinks(); // keep initialized at root
 
-  if (!ready) {
+  // While deciding provider gating (after login), show a tiny spinner
+  if (!providersReady) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <ActivityIndicator />
@@ -45,30 +49,27 @@ const RootNavigator = () => {
     );
   }
 
-  const hasAnyProvider = spotify?.linked || apple?.linked;
+  const hasAnyProvider = !!(spotify?.linked || apple?.linked);
+  const mustLink = isProviderRequired();
 
   return (
-    <NavigationContainer>
+    // key the tree so switching gate state resets history automatically
+    <NavigationContainer
+      key={user ? (mustLink && !hasAnyProvider ? 'gate' : 'main') : 'auth'}
+    >
       <Stack.Navigator>
         {user ? (
-          !hasAnyProvider && isProviderRequired() ? (
-            <>
-              <Stack.Screen
-                name="ConnectYourMusic"
-                component={ConnectYourMusic}
-                options={{ title: 'Connect' }}
-              />
-              <Stack.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{ title: 'Profile' }}
-              />
-              <Stack.Screen
-                name="ConnectedServices"
-                component={ConnectedServices}
-                options={{ title: 'Connected Services' }}
-              />
-            </>
+          // 🔒 HARD GATE: only Connect screen, no back, no gestures
+          mustLink && !hasAnyProvider ? (
+            <Stack.Screen
+              name="ConnectYourMusic"
+              component={ConnectYourMusic}
+              options={{
+                title: 'Connect',
+                headerBackVisible: false,
+                gestureEnabled: false,
+              }}
+            />
           ) : (
             <>
               <Stack.Screen

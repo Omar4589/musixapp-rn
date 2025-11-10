@@ -3,6 +3,10 @@ import { View, Text, Platform, Alert } from 'react-native';
 import ProviderCard from '../components/ProviderCard';
 import { useProviders } from '../state/ProvidersStore';
 import { useOAuthDeepLinks } from '../lib/deeplinks';
+import Banner from '../components/Banner';
+import { toast } from '../lib/toast';
+import Button from '../components/Button';
+import { useAuth } from '../state/AuthStore';
 
 const IS_IOS = Platform.OS === 'ios';
 
@@ -15,14 +19,21 @@ export default function ConnectYourMusic({ navigation }) {
     linkApple,
     unlinkApple,
     refresh,
+    busy,
   } = useProviders();
+  const { logout } = useAuth();
 
-  useOAuthDeepLinks(async ({ ok }) => {
+  useOAuthDeepLinks(async ({ ok, provider }) => {
     if (ok) {
       await refresh();
-      navigation.replace('Profile'); // or your Tabs/Home route when you have it
+      toast.success(
+        provider === 'spotify'
+          ? 'Connected to Spotify.'
+          : 'Connected to Apple Music.',
+      );
+      navigation.replace('Profile'); // or your Tabs/Home route
     } else {
-      Alert.alert('Linking failed', 'Please try again.');
+      toast.error('Linking failed. Try again.');
     }
   });
 
@@ -35,13 +46,24 @@ export default function ConnectYourMusic({ navigation }) {
         Link a provider to play songs and translate lyrics.
       </Text>
 
+      {spotify.needsAttention && (
+        <Banner
+          type="warning"
+          text="Spotify needs to be re-linked."
+          ctaTitle="Re-link"
+          onPress={linkSpotify}
+        />
+      )}
+
       <ProviderCard
         title="Spotify"
         subtitle="Works on iOS and Android"
         linked={spotify.linked}
         needsAttention={spotify.needsAttention}
-        onLink={() => linkSpotify()}
-        onUnlink={() => unlinkSpotify()}
+        onLink={linkSpotify}
+        onUnlink={unlinkSpotify}
+        loadingLink={busy.linkSpotify}
+        loadingUnlink={busy.unlinkSpotify}
       />
 
       {IS_IOS && (
@@ -50,16 +72,24 @@ export default function ConnectYourMusic({ navigation }) {
           subtitle="iOS only"
           linked={apple.linked}
           needsAttention={apple.needsAttention}
-          onLink={() =>
-            linkApple(async () => {
-              // You’ll wire this to MusicKit bridge later; for now return null to skip
-              // return await MusicKit.getUserToken();
-              return null;
-            })
-          }
-          onUnlink={() => unlinkApple()}
+          onLink={linkApple}
+          onUnlink={unlinkApple}
+          loadingLink={busy.linkApple}
+          loadingUnlink={busy.unlinkApple}
         />
       )}
+
+      {/* ---- Exit path ---- */}
+      <View className="mt-10">
+        <Button
+          title="Log out"
+          variant="secondary"
+          onPress={async () => {
+            await logout();
+            // AuthStore clears tokens and nav tree flips to Welcome stack
+          }}
+        />
+      </View>
     </View>
   );
 }
