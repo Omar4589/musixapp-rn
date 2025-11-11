@@ -110,4 +110,25 @@ export const useAuth = create((set, get) => ({
     await clearTokens();
     set({ user: null, accessToken: null, refreshToken: null });
   },
+
+  hasPreferredLanguages: () => {
+    const u = get().user;
+    return (
+      Array.isArray(u?.preferences?.preferredLanguages) &&
+      u.preferences.preferredLanguages.length > 0
+    );
+  },
+
+  updatePreferences: async ({ preferredLanguages, genres }) => {
+    const body = {};
+    if (preferredLanguages) body.preferredLanguages = preferredLanguages;
+    if (genres) body.genres = genres;
+
+    await fetchJson('/api/me/preferences', {
+      method: 'PATCH',
+      auth: 'auto',
+      body,
+    });
+    await get().fetchMe();
+  },
 }));

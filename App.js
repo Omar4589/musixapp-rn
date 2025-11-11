@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind'; // 👈 use this one, not react-native
 import RootNavigator from './src/navigation/RootNavigator';
@@ -42,14 +42,14 @@ const App = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView
-        className={`${
-          colorScheme === 'dark' ? 'bg-neutral-900' : 'bg-white'
-        } flex-1`}
-      >
+     
+        <StatusBar
+          barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'}
+          backgroundColor={colorScheme === 'dark' ? '#000000' : '#ffffff'}
+        />
         <RootNavigator />
         <Toast />
-      </SafeAreaView>
+   
     </SafeAreaProvider>
   );
 };

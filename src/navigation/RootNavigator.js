@@ -11,6 +11,7 @@ import { useOAuthDeepLinks } from '../lib/deeplinks';
 import ConnectYourMusic from '../screens/ConnectYourMusic';
 import ConnectedServices from '../screens/ConnectedServices';
 import TabNavigator from './TabNavigator';
+import PreferencesScreen from '../screens/PreferencesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,7 +58,18 @@ const RootNavigator = () => {
     <NavigationContainer
       key={user ? (mustLink && !hasAnyProvider ? 'gate' : 'main') : 'auth'}
     >
-      <Stack.Navigator screenOptions={{ headerBackTitleVisible: false }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerBackTitleVisible: false,
+          headerStyle: {
+            backgroundColor: '#000', // dark by default
+          },
+          headerTintColor: '#fff',
+          contentStyle: {
+            backgroundColor: '#000', // dark backdrop for transitions
+          },
+        }}
+      >
         {user ? (
           mustLink && !hasAnyProvider ? (
             // 🔒 Gate stack
@@ -78,12 +90,28 @@ const RootNavigator = () => {
               />
             </>
           ) : (
-            // ✅ Main app (tabs)
-            <Stack.Screen
-              name="Tabs"
-              component={TabNavigator}
-              options={{ headerShown: false }}
-            />
+            // ✅ Main app: Tabs + overlay screens
+            <>
+              <Stack.Screen
+                name="Tabs"
+                component={TabNavigator}
+                options={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: '#000' },
+                }}
+              />
+              <Stack.Screen
+                name="Preferences"
+                component={PreferencesScreen}
+                options={{ title: 'Preferences' }}
+              />
+              {/* If you want ConnectedServices accessible outside Profile too, add it here as well: */}
+              <Stack.Screen
+                name="ConnectedServices"
+                component={ConnectedServices}
+                options={{ title: 'Connected Services' }}
+              />
+            </>
           )
         ) : (
           // 👤 Auth stack

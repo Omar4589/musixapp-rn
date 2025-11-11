@@ -7,6 +7,7 @@ import ErrorNotice from '../components/ErrorNotice';
 import { loginSchema } from '../lib/validators';
 import { useAuth } from '../state/AuthStore';
 import { toast } from '../lib/toast';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const WelcomeScreen = ({ navigation }) => {
   const { login } = useAuth();
@@ -47,53 +48,51 @@ const WelcomeScreen = ({ navigation }) => {
       extraScrollHeight={Platform.select({ ios: 20, android: 32 })}
       extraHeight={Platform.select({ ios: 0, android: 80 })}
     >
-      <Text className="text-3xl font-bold mb-2 text-neutral-900 dark:text-neutral-100">
-        Music App
-      </Text>
-      <Text className="text-base text-neutral-600 dark:text-neutral-300 mb-8">
-        Discover music across languages. Log in to continue.
-      </Text>
-
-      {/* Optional inline error */}
-      {/* <ErrorNotice message={err} /> */}
-
-      <TextField
-        label="Email or username"
-        value={emailOrUsername}
-        onChangeText={setIdent}
-        placeholder="you@example.com or yourname"
-        autoCapitalize="none"
-        returnKeyType="next"
-        onSubmitEditing={() => passRef.current?.focus()}
-        textContentType="username"
-      />
-      <TextField
-        ref={passRef}
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        placeholder="••••••••"
-        secureTextEntry
-        returnKeyType="done"
-        onSubmitEditing={onSubmit}
-        textContentType="password"
-      />
-
-      <Button
-        title="Log in"
-        onPress={onSubmit}
-        loading={submitting}
-        className="mt-3"
-      />
-
-      <View className="flex-row justify-center mt-6">
-        <Text className="text-neutral-600 dark:text-neutral-300 mr-1">
-          Don’t have an account?
+      <SafeAreaView className="flex-col justify-center h-screen">
+        <Text className="text-3xl font-bold mb-2 text-neutral-900 dark:text-neutral-100">
+          Music App
         </Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text className="text-emerald-500 font-semibold">Sign up</Text>
-        </TouchableOpacity>
-      </View>
+        <Text className="text-base text-neutral-600 dark:text-neutral-300 mb-8">
+          Discover music across languages. Log in to continue.
+        </Text>
+        {/* Optional inline error */}
+        {/* <ErrorNotice message={err} /> */}
+        <TextField
+          label="Email or username"
+          value={emailOrUsername}
+          onChangeText={setIdent}
+          placeholder="you@example.com or yourname"
+          autoCapitalize="none"
+          returnKeyType="next"
+          onSubmitEditing={() => passRef.current?.focus()}
+          textContentType="username"
+        />
+        <TextField
+          ref={passRef}
+          label="Password"
+          value={password}
+          onChangeText={setPassword}
+          placeholder="••••••••"
+          secureTextEntry
+          returnKeyType="done"
+          onSubmitEditing={onSubmit}
+          textContentType="password"
+        />
+        <Button
+          title="Log in"
+          onPress={onSubmit}
+          loading={submitting}
+          className="mt-3"
+        />
+        <View className="flex-row justify-center mt-6">
+          <Text className="text-neutral-600 dark:text-neutral-300 mr-1">
+            Don’t have an account?
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text className="text-emerald-500 font-semibold">Sign up</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     </KeyboardAwareScrollView>
   );
 };

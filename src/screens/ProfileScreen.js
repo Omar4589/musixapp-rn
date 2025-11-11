@@ -58,6 +58,11 @@ const ProfileScreen = () => {
         onPress={() => navigation.navigate('ConnectedServices')}
         className="mb-6"
       />
+      <Button
+        title="Preferences"
+        onPress={() => navigation.navigate('Preferences')}
+        className="mb-3"
+      />
 
       <Text className="text-sm font-semibold mb-2 text-neutral-900 dark:text-neutral-100">
         Theme
