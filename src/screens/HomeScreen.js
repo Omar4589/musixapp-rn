@@ -9,6 +9,7 @@ import { fetchJson } from '../lib/api';
 import LinearGradient from 'react-native-linear-gradient';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useProviders } from '../state/ProvidersStore';
+import ActionSheet from '../components/ActionSheet';
 
 const mapCountryToStorefront = cc => {
   if (!cc) return 'us';
@@ -38,17 +39,14 @@ const mapCountryToStorefront = cc => {
 
 export default function HomeScreen({ navigation }) {
   const { hasPreferredLanguages } = useAuth();
-  const {
-    activeProvider,
-    spotify,
-    apple,
-    refresh: refreshProviders,
-  } = useProviders();
+  const { activeProvider, refresh: refreshProviders } = useProviders();
   const needsPrefs = !hasPreferredLanguages();
   const scheme = useColorScheme();
   const tabBarHeight = useBottomTabBarHeight();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const { storefront, locale } = useMemo(() => {
     const locales = RNLocalize.getLocales?.() || [];
@@ -86,6 +84,18 @@ export default function HomeScreen({ navigation }) {
     if (!needsPrefs && activeProvider) load();
   }, [needsPrefs, activeProvider, load]);
 
+  const handlePress = item => {
+    const isAlbum = item.album && item.tracks; // fallback if we later tag items
+    navigation.navigate(item.album ? 'TrackDetail' : 'AlbumDetail', {
+      provider: item.provider,
+      id: item.providerId,
+    });
+  };
+
+  const handleLongPress = item => {
+    setSelectedItem(item);
+    setSheetVisible(true);
+  };
   /* ----------------------------
    * Needs Prefs screen
    * ---------------------------- */
@@ -184,7 +194,12 @@ export default function HomeScreen({ navigation }) {
           </View>
         }
         renderItem={({ item }) => (
-          <TrackRow title={item.title} items={item.items} />
+          <TrackRow
+            title={item.title}
+            items={item.items}
+            onPress={handlePress}
+            onLongPress={handleLongPress}
+          />
         )}
         ListEmptyComponent={
           <View className="px-4 py-10">
@@ -197,6 +212,12 @@ export default function HomeScreen({ navigation }) {
             </Text>
           </View>
         }
+      />
+
+      <ActionSheet
+        visible={sheetVisible}
+        item={selectedItem}
+        onClose={() => setSheetVisible(false)}
       />
     </LinearGradient>
   );

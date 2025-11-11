@@ -12,6 +12,8 @@ import ConnectYourMusic from '../screens/ConnectYourMusic';
 import ConnectedServices from '../screens/ConnectedServices';
 import TabNavigator from './TabNavigator';
 import PreferencesScreen from '../screens/PreferencesScreen';
+import TrackDetailScreen from '../screens/TrackDetailsScreen';
+import AlbumDetailScreen from '../screens/AlbumDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -110,6 +112,16 @@ const RootNavigator = () => {
                 name="ConnectedServices"
                 component={ConnectedServices}
                 options={{ title: 'Connected Services' }}
+              />
+              <Stack.Screen
+                name="TrackDetail"
+                component={TrackDetailScreen}
+                options={{ title: 'Track Details' }}
+              />
+              <Stack.Screen
+                name="AlbumDetail"
+                component={AlbumDetailScreen}
+                options={{ title: 'Album Details' }}
               />
             </>
           )
