@@ -6,8 +6,9 @@ import Button from '../components/Button';
 import TrackRow from '../components/TrackRow';
 import { useAuth } from '../state/AuthStore';
 import { fetchJson } from '../lib/api';
-import LinearGradient from 'react-native-linear-gradient'; // if not using Expo, replace with react-native-linear-gradient
+import LinearGradient from 'react-native-linear-gradient';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useProviders } from '../state/ProvidersStore';
 
 const mapCountryToStorefront = cc => {
   if (!cc) return 'us';
@@ -37,6 +38,12 @@ const mapCountryToStorefront = cc => {
 
 export default function HomeScreen({ navigation }) {
   const { hasPreferredLanguages } = useAuth();
+  const {
+    activeProvider,
+    spotify,
+    apple,
+    refresh: refreshProviders,
+  } = useProviders();
   const needsPrefs = !hasPreferredLanguages();
   const scheme = useColorScheme();
   const tabBarHeight = useBottomTabBarHeight();
@@ -53,25 +60,31 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const load = useCallback(async () => {
+    if (!activeProvider) return;
     setLoading(true);
     try {
-      const qs = `storefront=${encodeURIComponent(
+      const qs = new URLSearchParams({
         storefront,
-      )}&locale=${encodeURIComponent(locale)}`;
+        locale,
+        provider: activeProvider,
+      }).toString();
+
       const res = await fetchJson(`/api/discovery/home?${qs}`, {
         auth: 'auto',
       });
       setRows(res.rows || []);
-    } catch {
+    } catch (err) {
+      console.warn('Failed to load discovery feed', err);
       setRows([]);
     } finally {
       setLoading(false);
     }
-  }, [storefront, locale]);
+  }, [storefront, locale, activeProvider]);
 
+  // 🔄 Refresh when provider or prefs change
   useEffect(() => {
-    if (!needsPrefs) load();
-  }, [needsPrefs, load]);
+    if (!needsPrefs && activeProvider) load();
+  }, [needsPrefs, activeProvider, load]);
 
   /* ----------------------------
    * Needs Prefs screen
@@ -99,9 +112,36 @@ export default function HomeScreen({ navigation }) {
   }
 
   /* ----------------------------
+   * No provider linked
+   * ---------------------------- */
+  if (!activeProvider) {
+    return (
+      <LinearGradient
+        colors={
+          scheme === 'dark'
+            ? ['#000000', '#0d0d0d', '#1a1a1a']
+            : ['#ffffff', '#f9fafb', '#f3f4f6']
+        }
+        className="flex-1 items-center justify-center px-8"
+      >
+        <Text className="text-2xl font-bold text-center mb-3 text-neutral-900 dark:text-neutral-100">
+          Link your music 🎵
+        </Text>
+        <Text className="text-base text-center text-neutral-600 dark:text-neutral-400 mb-6">
+          Connect Spotify or Apple Music to discover tracks, charts, and
+          playlists just for you.
+        </Text>
+        <Button
+          title="Connect a Service"
+          onPress={() => navigation.navigate('ConnectedServices')}
+        />
+      </LinearGradient>
+    );
+  }
+
+  /* ----------------------------
    * Home feed
    * ---------------------------- */
-  console.log('rendering screen', needsPrefs, rows.length);
 
   return (
     <LinearGradient
@@ -124,14 +164,19 @@ export default function HomeScreen({ navigation }) {
         refreshControl={
           <RefreshControl
             refreshing={loading}
-            onRefresh={load}
+            onRefresh={async () => {
+              await refreshProviders();
+              await load();
+            }}
             tintColor={scheme === 'dark' ? '#1DB954' : '#000'}
           />
         }
         ListHeaderComponent={
           <View className="mb-6">
             <Text className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
-              Discover
+              {activeProvider === 'apple'
+                ? 'Apple Music Picks 🍎'
+                : 'Spotify Discover 🎶'}
             </Text>
             <Text className="text-neutral-600 dark:text-neutral-400 mt-1 text-base">
               Fresh tracks & charts from your favorite languages
@@ -144,7 +189,11 @@ export default function HomeScreen({ navigation }) {
         ListEmptyComponent={
           <View className="px-4 py-10">
             <Text className="text-neutral-700 dark:text-neutral-300 text-center">
-              Nothing to show yet. Link Apple Music or pull to refresh.
+              {loading
+                ? 'Loading...'
+                : activeProvider === 'apple'
+                ? 'No Apple Music content yet — pull to refresh.'
+                : 'No Spotify content yet — pull to refresh.'}
             </Text>
           </View>
         }
