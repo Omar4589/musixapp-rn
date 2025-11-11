@@ -24,14 +24,7 @@ export default function TrackCard({ item, onPress, onLongPress }) {
           colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.55)']}
           className="absolute bottom-0 left-0 right-0 h-20"
         />
-        <View className="absolute bottom-2 left-2 right-2">
-          <Text
-            numberOfLines={1}
-            className="text-[13px] font-semibold text-white drop-shadow-md"
-          >
-            {item.name}
-          </Text>
-        </View>
+        <View className="absolute bottom-2 left-2 right-2"></View>
       </View>
       <View className="mt-2">
         <Text
@@ -44,7 +37,9 @@ export default function TrackCard({ item, onPress, onLongPress }) {
           numberOfLines={1}
           className="text-xs text-neutral-500 dark:text-neutral-400"
         >
-          {item.artists?.[0] || ''}
+          {Array.isArray(item.artists)
+            ? item.artists.map(a => a.name).join(', ')
+            : item.artists || ''}
         </Text>
       </View>
     </Pressable>

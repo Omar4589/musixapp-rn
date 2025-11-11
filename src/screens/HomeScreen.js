@@ -185,8 +185,8 @@ export default function HomeScreen({ navigation }) {
           <View className="mb-6">
             <Text className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-neutral-50">
               {activeProvider === 'apple'
-                ? 'Apple Music Picks 🍎'
-                : 'Spotify Discover 🎶'}
+                ? 'Apple Music Picks'
+                : 'Spotify Discover'}
             </Text>
             <Text className="text-neutral-600 dark:text-neutral-400 mt-1 text-base">
               Fresh tracks & charts from your favorite languages
