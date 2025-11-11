@@ -1,7 +1,7 @@
 // screens/ConnectedServices.js
 import { View, Text, Platform, Alert } from 'react-native';
 import ProviderCard from '../components/ProviderCard';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useProviders } from '../state/ProvidersStore';
 import Banner from '../components/Banner';
 import { toast } from '../lib/toast';
@@ -20,17 +20,8 @@ export default function ConnectedServices() {
     busy,
     hasAnyProvider,
     isProviderRequired,
+    activeProvider,
   } = useProviders();
-
-  // const hardGateToConnect = () => {
-  //   // wipe history: ConnectYourMusic becomes the root
-  //   navigation.dispatch(
-  //     CommonActions.reset({
-  //       index: 0,
-  //       routes: [{ name: 'ConnectYourMusic' }],
-  //     }),
-  //   );
-  // };
 
   const confirmUnlink = provider => {
     Alert.alert(
@@ -45,17 +36,21 @@ export default function ConnectedServices() {
             if (provider === 'spotify') await unlinkSpotify();
             else await unlinkApple();
 
-            // Re-gate if last provider and required
             const any = hasAnyProvider();
             if (!any && isProviderRequired()) {
               toast.info('Link a provider to continue.');
-              // hardGateToConnect();
             }
           },
         },
       ],
       { cancelable: true },
     );
+  };
+
+  const renderSubtitle = (provider, linked) => {
+    if (!linked) return 'Link to enable playback & playlists';
+    if (activeProvider === provider) return '✅ Active';
+    return 'Linked';
   };
 
   return (
@@ -75,27 +70,27 @@ export default function ConnectedServices() {
 
       <ProviderCard
         title="Spotify"
-        subtitle={
-          spotify.linked ? 'Linked' : 'Link to enable playback & playlists'
-        }
+        subtitle={renderSubtitle('spotify', spotify.linked)}
         linked={spotify.linked}
         needsAttention={spotify.needsAttention}
         onLink={linkSpotify}
         onUnlink={() => confirmUnlink('spotify')}
         loadingLink={busy.linkSpotify}
         loadingUnlink={busy.unlinkSpotify}
+        disabled={activeProvider === 'spotify' && spotify.linked}
       />
 
       {IS_IOS && (
         <ProviderCard
           title="Apple Music"
-          subtitle={apple.linked ? 'Linked' : 'iOS only'}
+          subtitle={renderSubtitle('apple', apple.linked)}
           linked={apple.linked}
           needsAttention={apple.needsAttention}
           onLink={linkApple}
           onUnlink={() => confirmUnlink('apple')}
           loadingLink={busy.linkApple}
           loadingUnlink={busy.unlinkApple}
+          disabled={activeProvider === 'apple' && apple.linked}
         />
       )}
     </View>

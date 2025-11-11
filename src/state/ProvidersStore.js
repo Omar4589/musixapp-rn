@@ -15,6 +15,7 @@ export const useProviders = create((set, get) => ({
     subscriptionActive: null,
     needsAttention: false,
   },
+  activeProvider: null,
   flags: { providerLinkOptional: false, appleAndroidEnabled: false },
   loading: false,
   busy: {
@@ -31,6 +32,8 @@ export const useProviders = create((set, get) => ({
       set({
         spotify: res.spotify || { linked: false, needsAttention: false },
         apple: res.apple || { linked: false, needsAttention: false },
+        activeProvider: res.activeProvider || null,
+        flags: res.flags || {},
       });
     } finally {
       set({ loading: false });
@@ -45,17 +48,66 @@ export const useProviders = create((set, get) => ({
 
   isProviderRequired: () => !get().flags.providerLinkOptional,
 
-  linkSpotify: async () => {
+  isProviderLinked: provider =>
+    !!(get()[provider]?.linked && get().activeProvider === provider),
+
+  // 🔁 Switch provider flow
+  switchProvider: async (newProvider, oldProvider) => {
+    try {
+      toast.info(`Linking ${newProvider}...`);
+      const success =
+        newProvider === 'spotify'
+          ? await get().linkSpotify(true)
+          : await get().linkApple(true);
+
+      if (!success) {
+        toast.error('Linking failed.');
+        return;
+      }
+
+      toast.info(`Finalizing switch...`);
+      await fetchJson(`/api/providers/${oldProvider}/unlink`, {
+        method: 'POST',
+        auth: 'auto',
+      });
+
+      await get().refresh();
+      toast.success(`Switched to ${newProvider}!`);
+    } catch (err) {
+      console.error('Switch provider failed', err);
+      toast.error('Failed to switch provider');
+    }
+  },
+
+  // 🎧 Spotify linking
+  linkSpotify: async (isSwitchFlow = false) => {
     set(state => ({ busy: { ...state.busy, linkSpotify: true } }));
     try {
+      const { activeProvider } = get();
+      if (activeProvider && activeProvider !== 'spotify' && !isSwitchFlow) {
+        Alert.alert(
+          'Switch Music Service',
+          `You’re currently linked with ${activeProvider}. Linking Spotify will replace it. Continue?`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Continue',
+              onPress: () => get().switchProvider('spotify', activeProvider),
+            },
+          ],
+        );
+        return;
+      }
+
       const data = await fetchJson('/api/oauth/spotify/start', {
         auth: 'auto',
       });
       await Linking.openURL(data.authUrl);
-      // success toast comes after deep-link callback once refresh confirms
+      return true;
     } catch (e) {
       console.warn('Spotify link start failed', e);
       toast.error('Couldn’t start Spotify link. Try again.');
+      return false;
     } finally {
       set(state => ({ busy: { ...state.busy, linkSpotify: false } }));
     }
@@ -77,10 +129,27 @@ export const useProviders = create((set, get) => ({
     }
   },
 
-  linkApple: async () => {
+  // 🍎 Apple linking
+  linkApple: async (isSwitchFlow = false) => {
     if (!IS_IOS) return;
     set(state => ({ busy: { ...state.busy, linkApple: true } }));
     try {
+      const { activeProvider } = get();
+      if (activeProvider && activeProvider !== 'apple' && !isSwitchFlow) {
+        Alert.alert(
+          'Switch Music Service',
+          `You’re currently linked with ${activeProvider}. Linking Apple Music will replace it. Continue?`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Continue',
+              onPress: () => get().switchProvider('apple', activeProvider),
+            },
+          ],
+        );
+        return;
+      }
+
       const { devToken } = await fetchJson('/api/apple/dev-token', {
         auth: 'auto',
       });
@@ -92,9 +161,11 @@ export const useProviders = create((set, get) => ({
       });
       await get().refresh();
       toast.success('Connected to Apple Music.');
+      return true;
     } catch (e) {
       console.warn('Apple link failed', e);
       toast.error('Couldn’t link Apple Music. Try again.');
+      return false;
     } finally {
       set(state => ({ busy: { ...state.busy, linkApple: false } }));
     }
