@@ -23,7 +23,7 @@ export default function ConnectYourMusic({ navigation }) {
   } = useProviders();
   const { logout } = useAuth();
 
-  useOAuthDeepLinks(async ({ ok, provider }) => {
+  useOAuthDeepLinks(async ({ ok, provider, error }) => {
     if (ok) {
       await refresh();
       toast.success(
@@ -31,9 +31,13 @@ export default function ConnectYourMusic({ navigation }) {
           ? 'Connected to Spotify.'
           : 'Connected to Apple Music.',
       );
-      navigation.replace('Profile'); // or your Tabs/Home route
+      navigation.replace('Profile');
     } else {
-      toast.error('Linking failed. Try again.');
+      if (error === 'not_premium') {
+        toast.error('Spotify Premium is required to link this account.');
+      } else {
+        toast.error('Linking failed. Try again.');
+      }
     }
   });
 
@@ -52,6 +56,15 @@ export default function ConnectYourMusic({ navigation }) {
           text="Spotify needs to be re-linked."
           ctaTitle="Re-link"
           onPress={linkSpotify}
+        />
+      )}
+
+      {spotify.linked && spotify.plan !== 'premium' && (
+        <Banner
+          type="warning"
+          text="Spotify Premium is required for full playback."
+          ctaTitle="Upgrade"
+          onPress={() => Linking.openURL('https://www.spotify.com/premium/')}
         />
       )}
 

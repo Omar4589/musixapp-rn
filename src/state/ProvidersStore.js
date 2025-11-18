@@ -30,10 +30,20 @@ export const useProviders = create((set, get) => ({
     try {
       const res = await fetchJson('/api/me/providers', { auth: 'auto' });
       set({
-        spotify: res.spotify || { linked: false, needsAttention: false },
-        apple: res.apple || { linked: false, needsAttention: false },
-        activeProvider: res.activeProvider || null,
-        flags: res.flags || {},
+        spotify: {
+          linked: res.spotify?.linked,
+          linkedAt: res.spotify?.linkedAt,
+          plan: res.spotify?.plan,
+          needsAttention: res.spotify?.needsAttention,
+        },
+        apple: {
+          linked: res.apple?.linked,
+          linkedAt: res.apple?.linkedAt,
+          subscriptionActive: res.apple?.subscriptionActive,
+          needsAttention: res.apple?.needsAttention,
+        },
+        activeProvider: res.activeProvider,
+        flags: res.flags,
       });
     } finally {
       set({ loading: false });

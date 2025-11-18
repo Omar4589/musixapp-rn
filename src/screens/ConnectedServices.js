@@ -68,6 +68,15 @@ export default function ConnectedServices() {
         />
       )}
 
+      {spotify.linked && spotify.plan !== 'premium' && (
+        <Banner
+          type="warning"
+          text="Your Spotify account isn’t Premium — playback features may be disabled."
+          ctaTitle="Upgrade"
+          onPress={() => Linking.openURL('https://www.spotify.com/premium/')}
+        />
+      )}
+
       <ProviderCard
         title="Spotify"
         subtitle={renderSubtitle('spotify', spotify.linked)}
